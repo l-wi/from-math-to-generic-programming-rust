@@ -1,3 +1,11 @@
+#![feature(test)]
+
+extern crate test;
+
+fn main(){
+    print!("{}",mul0(15,14));
+}
+
 fn mul_acc4(a: i32, b: i32, r:i32) -> i32 {
     let mut r = r;
     let mut a = a;
@@ -147,8 +155,11 @@ fn odd(a:i32) -> bool {
 
 #[cfg(test)]
 mod tests {
-    
+   
+
     use super::*;
+    use test::{Bencher,black_box};
+    
     #[test]
     fn test_mul0(){
         assert_eq!(42,mul0(2,21));
@@ -209,4 +220,81 @@ mod tests {
         assert_eq!(42,mul4(2,21));
         assert_eq!(42,mul4(21,2));
     }
+    #[bench]
+    fn bench_mul0(b: &mut Bencher) 
+    {
+        b.iter( || {
+            let arg = 42000;
+            let mut acc = 0;
+
+            for i  in 1..1000 {
+                acc += mul0(arg,i);
+            }
+
+            return acc;
+        });
+    }
+
+
+    #[bench]
+    fn bench_mul1(b: &mut Bencher) 
+    {
+        b.iter( || {
+            let arg = 42000;
+            let mut acc = 0;
+
+            for i  in 1..1000 {
+                acc += mul1(arg,i);
+            }
+
+            return acc;
+        });
+    }
+
+
+    #[bench]
+    fn bench_mul2(b: &mut Bencher) 
+    {
+        b.iter( || {
+            let arg = 42000;
+            let mut acc = 0;
+            for i  in 1..1000 {
+                acc += mul2(arg,i);
+            }
+
+            return acc;
+        });
+    }
+
+
+    #[bench]
+    fn bench_mul3(b: &mut Bencher) 
+    {
+        b.iter( || {
+            let arg = 42000;
+            let mut acc = 0;
+            for i  in 1..1000 {
+                acc += mul3(arg,i);
+            }
+
+            return acc;
+        });
+    }
+
+
+
+    #[bench]
+    fn bench_mul4(b: &mut Bencher) 
+    {
+        b.iter( || {
+            let arg = 42000;
+            let mut acc = 0;
+            for i  in 1..1000 {
+                acc += mul4(arg,i);
+            }
+
+            return acc;
+        });
+    }
+
 }
