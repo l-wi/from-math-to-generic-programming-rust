@@ -113,7 +113,7 @@ fn mul2(a:i32,b:i32) -> i32 {
         return b;
     }
 
-    return mul_acc4(b,a-1,b);
+    return mul_acc4(a-1,b,b);
 }
 
 fn mul3(a:i32,b:i32) -> i32 {
@@ -127,7 +127,7 @@ fn mul3(a:i32,b:i32) -> i32 {
 
     if a == 1 { return b }
     
-    return mul_acc4(b,a-1,b);
+    return mul_acc4(a-1,b,b);
 }
 
 fn mul4(a:i32,b:i32) -> i32 {
@@ -141,7 +141,7 @@ fn mul4(a:i32,b:i32) -> i32 {
 
     if a == 1 { return b }
     
-    return mul_acc4(b+b,half(a-1),b);
+    return mul_acc4(half(a-1),b+b,b);
 }
 
 
@@ -227,8 +227,8 @@ mod tests {
             let arg = 42000;
             let mut acc = 0;
 
-            for i  in 1..1000 {
-                acc += mul0(arg,i);
+            for i  in 1..100000 {
+                acc += black_box(mul0(arg,i));
             }
 
             return acc;
@@ -243,7 +243,7 @@ mod tests {
             let arg = 42000;
             let mut acc = 0;
 
-            for i  in 1..1000 {
+            for i  in 1..100000 {
                 acc += mul1(arg,i);
             }
 
@@ -258,7 +258,7 @@ mod tests {
         b.iter( || {
             let arg = 42000;
             let mut acc = 0;
-            for i  in 1..1000 {
+            for i  in 1..100000{
                 acc += mul2(arg,i);
             }
 
@@ -273,7 +273,7 @@ mod tests {
         b.iter( || {
             let arg = 42000;
             let mut acc = 0;
-            for i  in 1..1000 {
+            for i  in 1..100000 {
                 acc += mul3(arg,i);
             }
 
@@ -289,7 +289,7 @@ mod tests {
         b.iter( || {
             let arg = 42000;
             let mut acc = 0;
-            for i  in 1..1000 {
+            for i  in 1..100000 {
                 acc += mul4(arg,i);
             }
 
