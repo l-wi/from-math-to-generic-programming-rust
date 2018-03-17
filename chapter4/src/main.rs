@@ -5,9 +5,7 @@ extern crate test;
 use std::ops::{Sub,Add};
 
 
-fn main() {
-    println!("Hello, world!");
-}
+
 
 
 fn line_segment_gcm0<T:Ord+Copy+Sub<Output=T>>(mut a: T,mut b: T) -> T {
@@ -70,11 +68,32 @@ fn line_segment_gcm3<T:Ord+Copy+Sub<Output=T>+Add<Output=T>>(mut a: T,mut b: T) 
     a
 }
 
+fn gcd(mut a:u32,mut b:u32) -> u32 {
+    
+    while a != 0 {
+        b = b % a;
+        std::mem::swap(&mut a, &mut b);
+    }
+
+    b 
+}
+
+
 
 #[cfg(test)]
 mod tests{
     
     use super::*;
+
+    #[test]
+    fn test_gcd(){
+
+        assert_eq!(1,gcd(7,41));
+        assert_eq!(4,gcd(12,16));
+        assert_eq!(5,gcd(10,25));
+
+    }
+
 
     #[test]
     fn test_line_segment_gcm0(){
@@ -121,6 +140,12 @@ mod benchmarks{
 
     const A:u32 = 123456;
     const B:u32 = 556;
+
+    #[bench]
+    fn bench_gcd(bench:&mut Bencher){
+        bench.iter(|| gcd(A,B))
+    }
+
 
     #[bench]
     fn bench_gcm0(bench:&mut Bencher){
