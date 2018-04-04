@@ -2,13 +2,11 @@
 
 extern crate test;
 
-use std::ops::{Add, Mul};
-
 trait SemiGroup: Copy {}
 
 trait Monoid: SemiGroup {}
 
-trait Group: Monoid{}
+trait Group: Monoid {}
 
 trait Op<T> {
     fn op(a: T, b: T) -> T;
@@ -19,10 +17,20 @@ trait MonoidOp<T: Monoid>: Op<T> {
 }
 
 trait GroupOp<T: Group>: MonoidOp<T> {
-    fn inverse(a:T) -> T;
+    fn inverse(a: T) -> T;
 }
 
 struct Plusable;
+
+struct Multiplicable;
+
+/*--- i32 ---*/
+
+impl SemiGroup for i32 {}
+
+impl Monoid for i32 {}
+
+impl Group for i32 {}
 
 impl Op<i32> for Plusable {
     fn op(a: i32, b: i32) -> i32 {
@@ -37,13 +45,10 @@ impl MonoidOp<i32> for Plusable {
 }
 
 impl GroupOp<i32> for Plusable {
-    fn inverse(a:i32) -> i32{
+    fn inverse(a: i32) -> i32 {
         -a
     }
 }
-
-
-struct Multiplicable;
 
 impl Op<i32> for Multiplicable {
     fn op(a: i32, b: i32) -> i32 {
@@ -53,15 +58,36 @@ impl Op<i32> for Multiplicable {
 
 impl MonoidOp<i32> for Multiplicable {
     fn e() -> i32 {
-       1 
+        1
     }
 }
 
-impl SemiGroup for i32 {}
+/*--- f64 ---*/
 
-impl Monoid for i32 {}
+impl SemiGroup for f64 {}
 
-impl Group for i32 {}
+impl Monoid for f64 {}
+
+impl Group for f64 {}
+
+impl Op<f64> for Multiplicable {
+    fn op(a: f64, b: f64) -> f64 {
+        a * b
+    }
+}
+
+impl MonoidOp<f64> for Multiplicable {
+    fn e() -> f64 {
+        1.0
+    }
+}
+
+//FIXME assumes nobody hands in 0 or NaNs or infty etc.
+impl GroupOp<f64> for Multiplicable {
+    fn inverse(a: f64) -> f64 {
+        1.0 / a
+    }
+}
 
 fn main() {
     //    print!("{}", mul4(15, 14));
@@ -97,7 +123,7 @@ fn pow_semigroup<T: SemiGroup, U: Op<T>>(mut a: i32, mut b: T) -> T {
     pow_acc_semigroup::<T, U>(half(a - 1), U::op(b, b), b)
 }
 
-fn pow_monoid<T: Monoid, U: MonoidOp<T>>(mut a: i32, b: T) -> T {
+fn pow_monoid<T: Monoid, U: MonoidOp<T>>(a: i32, b: T) -> T {
     if a == 0 {
         U::e()
     } else {
@@ -105,12 +131,12 @@ fn pow_monoid<T: Monoid, U: MonoidOp<T>>(mut a: i32, b: T) -> T {
     }
 }
 
-fn pow_group<T: Group, U: GroupOp<T>>(mut a:i32,mut b:T) -> T {
+fn pow_group<T: Group, U: GroupOp<T>>(mut a: i32, mut b: T) -> T {
     if a < 0 {
         a = -a;
         b = U::inverse(b);
     }
-    pow_monoid::<T,U>(a,b)
+    pow_monoid::<T, U>(a, b)
 }
 
 fn half(a: i32) -> i32 {
@@ -125,7 +151,6 @@ fn odd(a: i32) -> bool {
 mod tests {
 
     use super::*;
-    use test::{black_box, Bencher};
 
     #[test]
     fn test_pow_acc_semigroup_mul() {
@@ -148,35 +173,32 @@ mod tests {
     #[test]
     fn test_pow_monoid_add_neutral() {
         let result = pow_monoid::<i32, Plusable>(0, 1);
-        assert_eq!(0,result);
+        assert_eq!(0, result);
     }
 
     #[test]
     fn test_pow_monoid_mul_neutral() {
         //45^0
         let result = pow_monoid::<i32, Multiplicable>(0, 45);
-        assert_eq!(1,result);
+        assert_eq!(1, result);
     }
 
     #[test]
     fn test_pow_group_negative() {
-        let result = pow_group::<i32,Plusable>(-2, -21);
-        assert_eq!(42,result);
+        let result = pow_group::<i32, Plusable>(-2, -21);
+        assert_eq!(42, result);
     }
 
-
-
-    /*    #[bench]
-    fn bench_mul4(b: &mut Bencher) {
-        b.iter(|| {
-            let arg = 420;
-            let mut acc = 0;
-            for i in 1..1000 {
-                acc += mul4(arg, i);
-            }
-
-            return acc;
-        });
+    #[test]
+    fn test_pow_group_mul_f64() {
+        let result = pow_group::<f64, Multiplicable>(2, 4.0);
+        assert_eq!(16.0, result);
     }
-*/
+
+    #[test]
+    fn test_pow_group_mul_f64_inverse() {
+        let result = pow_group::<f64, Multiplicable>(-3, -4.0);
+        assert_eq!(-1.0 / 64.0, result);
+    }
+
 }
